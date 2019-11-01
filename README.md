@@ -1,2 +1,7 @@
-# discrete_manufacture_costing
-Repo for Discrete manufacturing costing in ERPNext.
+## Sales Manufacturing Report
+
+Sales Manufacturing Report
+
+#### License
+
+MIT
