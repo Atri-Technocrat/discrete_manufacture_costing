@@ -34,6 +34,7 @@ def get_data(filters):
     filterItemGroup = tuple(item_group)
     stock_entry_type = "Manufacture"
 
+    # fetch report columns value
     if(filterItemGroup):
         response = frappe.db.sql(""" SELECT SOD.sales_order, WO.name, WO.production_plan, 
                 SED.item_code, SE.stock_entry_type, SED.item_group, 
@@ -70,6 +71,11 @@ def get_data(filters):
             GROUP BY SOD.sales_order, WO.name, WO.production_plan, SED.item_code """, 
         (production_plan, sale_order, stock_entry_type), as_list=1)
     
+    # fetch production quontity and Item rate to display summary
+    summary = frappe.db.sql(""" SELECT PP.total_produced_qty
+        FROM `tabProduction Plan` as PP
+        WHERE PP.name = %s """, (production_plan), as_list=1)
+
     totalQty = 0
     totalAmount = 0
     totalValuation = 0
@@ -80,8 +86,12 @@ def get_data(filters):
     
     totalCostPerUOM = 0
     if (totalAmount != 0):
-        totalCostPerUOM = totalQty / totalAmount
+        totalCostPerUOM = float("{0:.3f}".format(totalAmount / summary[0][0]))
     
+    totalAmount = float("{0:.3f}".format(totalAmount))
+    totalQty = float("{0:.3f}".format(totalQty))
+    totalValuation = float("{0:.3f}".format(totalValuation))
+
     # temporary quick solution
     response.append(['<b>Total</b>', '', '', '', '', '', totalQty, '', totalValuation, totalAmount])
     response.append(['<b>Manufacturing Cost per UOM</b>', '', '', '', '', '', '', '', '', totalCostPerUOM])
