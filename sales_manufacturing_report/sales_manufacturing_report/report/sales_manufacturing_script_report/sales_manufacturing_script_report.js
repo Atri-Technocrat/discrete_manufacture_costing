@@ -33,13 +33,19 @@ frappe.query_reports["Sales Manufacturing Script Report"] = {
 		// 	get_data: function(txt) {
 		// 		return frappe.db.get_link_options('Stock Entry Type', txt);
 		// 	}
-        // },
+		// },
+		{
+			"fieldname": "itemGroup",
+			"label": __("Item Group"),
+            "fieldtype": "MultiSelectList",
+			get_data: function(txt) {
+				return frappe.db.get_link_options('Item Group', txt);
+			}
+        },
 	]
 }
 
 var loadFeaturesToView = function (query_report, salesOrder) {
-	console.log(frappe)
-	console.log("frappe")
 	if (salesOrder) {
 		frappe.call({
 			method: "sales_manufacturing_report.sales_manufacturing_report.report.sales_manufacturing_script_report.sales_manufacturing_script_report.get_production_plan",
@@ -49,10 +55,8 @@ var loadFeaturesToView = function (query_report, salesOrder) {
 		})
 			.fail(fail => console.log("fail to fetch record", fail))
 			.done(success => {
-				console.log(success)
+				console.log(success.message)
 				// frappe.query_report_filters_by_name.salesOrder.get_value();
-				// frm.set_df_property('project_feature', 'options', success.message);
-				// frm.refresh_field('project_feature');
 			})
 	}
 }

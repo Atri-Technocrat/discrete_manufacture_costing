@@ -30,10 +30,14 @@ def get_column():
 def get_data(filters):
     sale_order = filters.salesOrder
     production_plan = filters.productionPlan
+    item_group = filters.itemGroup
+    filterItemGroup = tuple(item_group)
     stock_entry_type = "Manufacture"
-    response = frappe.db.sql(""" SELECT SOD.sales_order, WO.name, WO.production_plan, 
+
+    if(filterItemGroup):
+        response = frappe.db.sql(""" SELECT SOD.sales_order, WO.name, WO.production_plan, 
                 SED.item_code, SE.stock_entry_type, SED.item_group, 
-                ROUND(SED.qty, 3), SED.uom, SED.basic_rate,
+                SUM(ROUND(SED.qty, 3)), SED.uom, SED.basic_rate,
                 (SED.qty * SED.basic_rate) as amount
             FROM `tabWork Order` as WO
                 JOIN `tabStock Entry` as SE
@@ -44,11 +48,26 @@ def get_data(filters):
                     ON PP.name = WO.production_plan
                 JOIN `tabProduction Plan Sales Order` as SOD
                     ON SOD.parent = WO.production_plan
-                # LEFT JOIN `tabGlobal Defaults` as GD
-                #     ON GD.default_company = SE.company
             WHERE WO.production_plan = %s AND SOD.sales_order = %s AND SE.stock_entry_type = %s
-            GROUP BY SOD.sales_order, WO.name, WO.production_plan, 
-                SED.item_code """, 
+                AND SED.item_group IN %s
+            GROUP BY SOD.sales_order, WO.name, WO.production_plan, SED.item_code """, 
+        (production_plan, sale_order, stock_entry_type, filterItemGroup), as_list=1)
+    else:
+        response = frappe.db.sql(""" SELECT SOD.sales_order, WO.name, WO.production_plan, 
+                SED.item_code, SE.stock_entry_type, SED.item_group, 
+                SUM(ROUND(SED.qty, 3)), SED.uom, SED.basic_rate,
+                (SED.qty * SED.basic_rate) as amount
+            FROM `tabWork Order` as WO
+                JOIN `tabStock Entry` as SE
+                    ON SE.work_order = WO.name
+                JOIN `tabStock Entry Detail` as SED
+                    ON SED.parent = SE.name
+                JOIN `tabProduction Plan` as PP
+                    ON PP.name = WO.production_plan
+                JOIN `tabProduction Plan Sales Order` as SOD
+                    ON SOD.parent = WO.production_plan
+            WHERE WO.production_plan = %s AND SOD.sales_order = %s AND SE.stock_entry_type = %s
+            GROUP BY SOD.sales_order, WO.name, WO.production_plan, SED.item_code """, 
         (production_plan, sale_order, stock_entry_type), as_list=1)
     
     totalQty = 0
@@ -62,6 +81,7 @@ def get_data(filters):
     totalCostPerUOM = 0
     if (totalAmount != 0):
         totalCostPerUOM = totalQty / totalAmount
+    
     # temporary quick solution
     response.append(['<b>Total</b>', '', '', '', '', '', totalQty, '', totalValuation, totalAmount])
     response.append(['<b>Manufacturing Cost per UOM</b>', '', '', '', '', '', '', '', '', totalCostPerUOM])
