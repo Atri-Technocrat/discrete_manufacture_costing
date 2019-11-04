@@ -4,6 +4,7 @@
 from __future__ import unicode_literals
 import frappe
 from frappe import _
+from erpnext import get_company_currency, get_default_company
 
 
 def execute(filters=None):
@@ -76,6 +77,10 @@ def get_data(filters):
         FROM `tabProduction Plan` as PP
         WHERE PP.name = %s """, (production_plan), as_list=1)
 
+    # company = get_default_company()
+    # currency = get_company_currency(company)
+    # print(currency)
+
     totalQty = 0
     totalAmount = 0
     totalValuation = 0
@@ -83,6 +88,8 @@ def get_data(filters):
         totalQty = totalQty + sale[6]
         totalAmount = totalAmount + sale[9]
         totalValuation = totalValuation+ sale[8]
+        # sale[8] = str(sale[8]) + " " + currency
+        # sale[9] = str(sale[9]) + " " + currency
     
     totalCostPerUOM = 0
     if (totalAmount != 0):
@@ -93,8 +100,8 @@ def get_data(filters):
     totalValuation = float("{0:.3f}".format(totalValuation))
 
     # temporary quick solution
-    response.append(['<b>Total</b>', '', '', '', '', '', totalQty, '', totalValuation, totalAmount])
-    response.append(['<b>Manufacturing Cost per UOM</b>', '', '', '', '', '', '', '', '', totalCostPerUOM])
+    response.append(['', '', '', '<b>Total</b>', '', '', totalQty, '', totalValuation, totalAmount])
+    response.append(['', '', '', '<b>Manufacturing Cost per UOM</b>', '', '', '', '', '', totalCostPerUOM])
     return response
 
 
