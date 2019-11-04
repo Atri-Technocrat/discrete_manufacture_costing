@@ -9,8 +9,8 @@ from erpnext import get_company_currency, get_default_company
 
 def execute(filters=None):
     columns = get_column()
-    data = get_data(filters)
-    return columns, data
+    data, data_to_be_printed  = get_data(filters)
+    return columns, data, [], [], data_to_be_printed 
 
 
 def get_column():
@@ -73,9 +73,12 @@ def get_data(filters):
         (production_plan, sale_order, stock_entry_type), as_list=1)
     
     # fetch production quontity and Item rate to display summary
-    summary = frappe.db.sql(""" SELECT PP.total_produced_qty
+    summary = frappe.db.sql(""" SELECT PP.total_produced_qty, SOD.item_code
         FROM `tabProduction Plan` as PP
-        WHERE PP.name = %s """, (production_plan), as_list=1)
+        JOIN `tabProduction Plan Item` as SOD
+            ON SOD.parent = PP.name
+        WHERE PP.name = %s 
+        limit 1""", (production_plan), as_list=1)
 
     # company = get_default_company()
     # currency = get_company_currency(company)
@@ -102,7 +105,12 @@ def get_data(filters):
     # temporary quick solution
     response.append(['', '', '', '<b>Total</b>', '', '', totalQty, '', totalValuation, totalAmount])
     response.append(['', '', '', '<b>Manufacturing Cost per UOM</b>', '', '', '', '', '', totalCostPerUOM])
-    return response
+    
+    # summary report
+    QuontityProduced = summary[0][0]
+    Item = summary[0][1]
+    data_to_be_printed = [QuontityProduced, Item, totalCostPerUOM]
+    return response, data_to_be_printed
 
 
 @frappe.whitelist()
