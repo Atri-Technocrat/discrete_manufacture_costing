@@ -99,11 +99,12 @@ def get_data(filters):
 
 
 @frappe.whitelist()
-def get_production_plan(sales_order):
+def get_production_plan(doctype, txt, searchfield, start, page_len, filters):
+    sale_order = filters["sale_order"]
     response = frappe.db.sql(""" SELECT PP.name as value
         FROM `tabProduction Plan Sales Order` as PPSO
         JOIN `tabProduction Plan` as PP
             ON PPSO.parent = PP.name
-        WHERE PP.docstatus != 2 AND PPSO.sales_order = %s 
-        GROUP BY PP.name """, (sales_order), as_dict=True)
+        WHERE PP.docstatus != 2 AND PPSO.sales_order = %s
+        GROUP BY PP.name """, (sale_order), as_list=True)
     return response
