@@ -5,14 +5,7 @@ frappe.query_reports["Sales Manufacturing Script Report"] = {
 			"label": __("Sales Order"),
             "fieldtype": "Link",
             "options": "Sales Order",
-            "reqd": 1,
-            // "on_change": function(query_report) {
-            //     var salesOrder = query_report.get_values().salesOrder;
-            //     if (!salesOrder) {
-            //         return;
-            //     }                
-			// 	loadFeaturesToView(query_report, salesOrder);
-            // }
+            "reqd": 1
         },
         {
 			"fieldname": "productionPlan",
@@ -22,8 +15,6 @@ frappe.query_reports["Sales Manufacturing Script Report"] = {
 			"reqd": 1,
 			"get_query": function() {
 				var saleOrder = frappe.query_report.get_values().salesOrder;
-				// var query_output = loadFeaturesToView(salesOrder)
-				// return query_output
 				return {
 					"query": "sales_manufacturing_report.sales_manufacturing_report.report.sales_manufacturing_script_report.sales_manufacturing_script_report.get_production_plan",
 					"filters": {
@@ -50,21 +41,4 @@ frappe.query_reports["Sales Manufacturing Script Report"] = {
 			}
         },
 	]
-}
-
-var loadFeaturesToView = function (salesOrder) {
-	if (salesOrder) {
-		frappe.call({
-			method: "sales_manufacturing_report.sales_manufacturing_report.report.sales_manufacturing_script_report.sales_manufacturing_script_report.get_production_plan",
-			args: {
-				sales_order: salesOrder
-			}
-		})
-			.fail(fail => console.log("fail to fetch record", fail))
-			.done(success => {
-				console.log(success.message)
-				return success.message
-				// frappe.query_report_filters_by_name.salesOrder.get_value();
-			})
-	}
 }
