@@ -107,9 +107,9 @@ def get_data(filters):
     response.append(['', '', '', '<b>Manufacturing Cost per UOM</b>', '', '', '', '', '', totalCostPerUOM])
     
     # summary report
-    QuantityProduced = summary[0][0]
+    QuontityProduced = summary[0][0]
     Item = summary[0][1]
-    data_to_be_printed = [QuantityProduced, Item, totalCostPerUOM]
+    data_to_be_printed = [QuontityProduced, Item, totalCostPerUOM]
     return response, data_to_be_printed
 
 
