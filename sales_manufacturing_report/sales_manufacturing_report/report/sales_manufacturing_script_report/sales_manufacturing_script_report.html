@@ -15,8 +15,10 @@
 <hr>
 <h6>{%=  __("Sales Order") %} : {%= filters.salesOrder %}</h6>
 <h6>{%=  __("Production Plan") %} : {%= filters.productionPlan %}</h6>
+<h6>{%=  __("Item Name") %} : {%= report.raw_data.data_to_be_printed[1] %} </h6>
+<h6>{%=  __("Quantiry Produced") %} : {%= report.raw_data.data_to_be_printed[0] %} </h6>
+<h6>{%=  __("Cost per UOM") %} : {%= report.raw_data.data_to_be_printed[2] %} </h6>
 <h6>{%=  __("Item Group") %} : {%= filters.itemGroup %}</h6>
-<!-- <h6>{%=  __("Production Plan") %} : {%= this.data_to_be_printed %} </h6> -->
 <hr>
 
 <table class="table table-bordered">
@@ -39,7 +41,7 @@
 				<td>{%= row["Stock Entry Type"] %}</td>
 				<td>{%= row["Quantity"] %}</td>
 				<td>{%= row["UOM"] %}</td>
-				<td>{%= row["Amount"] %}</td>
+				<td style="text-align: right">{%= row["Amount"] %}</td>
 			</tr>	
 			{% } %}
 	</tbody>
